@@ -1,0 +1,23 @@
+# ============================================================
+# Factory Robot MVP — YOLO Vision Service Image
+# Inherits from base image, adds Ultralytics + OpenCV for inference.
+# 
+# This container is compute-only (no GUI). It connects to host Gazebo
+# via DDS over host network (network_mode: host).
+# ============================================================
+FROM factory_robot:latest
+
+# Install Python inference stack (headless OpenCV to avoid GUI deps)
+RUN pip3 install --no-cache-dir \
+    ultralytics==8.0.200 \
+    opencv-python-headless==4.8.1.78 \
+    torch torchvision
+
+# Re-build only the robot_vision package (fast layer)
+COPY src/robot_vision ./src/robot_vision
+RUN /bin/bash -c "source /opt/ros/humble/setup.bash && \
+    source /workspace/install/setup.bash && \
+    colcon build --packages-select robot_vision --symlink-install"
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/bin/bash"]

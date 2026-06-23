@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ============================================================
+       2D 激光雷达 Xacro 宏
+       类型：单线 360° 扫描激光雷达（如 Hokuyo / RPLIDAR 仿真）
+       发布 Topic：/scan (sensor_msgs/LaserScan)
+       ============================================================ -->
+
+  <xacro:macro name="lidar_sensor" params="parent xyz rpy">
+
+    <!-- 激光雷达安装支架 -->
+    <link name="lidar_mount_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.03" length="0.04"/>
+        </geometry>
+        <material name="dark_grey">
+          <color rgba="0.3 0.3 0.3 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.03" length="0.04"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.2"/>
+        <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+      </inertial>
+    </link>
+
+    <joint name="lidar_mount_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="lidar_mount_link"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+    </joint>
+
+    <!-- 激光雷达本体 link -->
+    <link name="lidar_link">
+      <visual>
+        <origin xyz="0 0 0.02" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.04" length="0.05"/>
+        </geometry>
+        <material name="red">
+          <color rgba="0.8 0.1 0.1 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0.02" rpy="0 0 0"/>
+        <geometry>
+          <cylinder radius="0.04" length="0.05"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.3"/>
+        <inertia ixx="0.0002" ixy="0" ixz="0" iyy="0.0002" iyz="0" izz="0.0002"/>
+      </inertial>
+    </link>
+
+    <joint name="lidar_joint" type="fixed">
+      <parent link="lidar_mount_link"/>
+      <child link="lidar_link"/>
+      <origin xyz="0 0 0.04" rpy="0 0 0"/>
+    </joint>
+
+    <!-- Gazebo Ignition 激光雷达插件 -->
+    <gazebo reference="lidar_link">
+      <sensor name="lidar_sensor" type="gpu_lidar">
+        <update_rate>20</update_rate>
+        <visualize>true</visualize>
+        <topic>scan</topic>
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>360</samples>
+              <resolution>1</resolution>
+              <min_angle>-3.14159</min_angle>
+              <max_angle>3.14159</max_angle>
+            </horizontal>
+          </scan>
+          <range>
+            <min>0.15</min>
+            <max>30.0</max>
+            <resolution>0.01</resolution>
+          </range>
+          <noise>
+            <type>gaussian</type>
+            <mean>0.0</mean>
+            <stddev>0.01</stddev>
+          </noise>
+        </lidar>
+        <plugin filename="libignition-gazebo-sensors-system.so" name="ignition::gazebo::systems::Sensors">
+          <render_engine>ogre2</render_engine>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+  </xacro:macro>
+
+</robot>

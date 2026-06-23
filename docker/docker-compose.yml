@@ -1,0 +1,66 @@
+# ============================================================
+# Factory Robot MVP — Docker Compose (Split Architecture)
+# 
+# Gazebo runs on the HOST (native). Docker containers run ROS2 nodes
+# that connect via DDS host networking.
+# 
+# Usage:
+#   docker-compose build          # Build all images
+#   docker-compose up -d vision   # Start YOLO vision container
+#   docker-compose up -d gripper  # Start gripper controller container
+#   docker-compose down           # Stop all containers
+# ============================================================
+version: "3.8"
+
+services:
+  # ------------------------------------------------------------------
+  # YOLO Vision Service
+  # Subscribes to /camera/color/image_raw (from host Gazebo bridge)
+  # Publishes /vision/detections and /vision/detection_image
+  # ------------------------------------------------------------------
+  vision:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.vision
+    image: factory_robot_vision:latest
+    container_name: factory_vision
+    network_mode: host
+    environment:
+      - ROS_DOMAIN_ID=0
+    volumes:
+      # Mount YOLO weights file (read-only)
+      - ../yolo26n.pt:/workspace/weights/yolo26n.pt:ro
+      # Mount source for live development (optional, remove for production)
+      - ../src/robot_vision:/workspace/src/robot_vision:ro
+    stdin_open: true
+    tty: true
+    command: >
+      bash -c "
+        source /opt/ros/humble/setup.bash &&
+        source /workspace/install/setup.bash &&
+        ros2 launch robot_vision yolo.launch.py
+      "
+
+  # ------------------------------------------------------------------
+  # Gripper Controller Service
+  # Runs the ros2_control controller manager for the gripper joints.
+  # ------------------------------------------------------------------
+  gripper:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: factory_robot:latest
+    container_name: factory_gripper
+    network_mode: host
+    environment:
+      - ROS_DOMAIN_ID=0
+    volumes:
+      - ../src:/workspace/src:ro
+    stdin_open: true
+    tty: true
+    command: >
+      bash -c "
+        source /opt/ros/humble/setup.bash &&
+        source /workspace/install/setup.bash &&
+        ros2 launch robot_gripper gripper.launch.py
+      "

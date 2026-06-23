@@ -1,0 +1,64 @@
+# ============================================================
+# slam_toolbox 异步在线建图参数配置（2D LiDAR）
+# 模式：async_online（实时在线建图，适合遥控/自主移动）
+# 后续可切换为 localization 模式用于定位
+# ============================================================
+slam_toolbox:
+  ros__parameters:
+    # 建图模式：mapping / localization / localization_slam / lifelong_mapping
+    mode: mapping
+
+    # 输入 topic
+    scan_topic: /scan
+    odom_frame: odom
+    map_frame: map
+    base_frame: base_link
+
+    # 坐标系变换超时
+    transform_timeout: 0.2
+    transform_publish_period: 0.05
+
+    # 地图分辨率（米/像素）
+    resolution: 0.05
+
+    # 地图尺寸（初始猜测，slam_toolbox 会自动扩展）
+    max_laser_range: 20.0
+    minimum_time_interval: 0.5
+    minimum_travel_distance: 0.5
+    minimum_travel_heading: 0.5
+
+    # 扫描匹配器参数
+    scan_buffer_size: 10
+    scan_buffer_maximum_scan_distance: 10.0
+    link_match_minimum_response_fine: 0.1
+    link_scan_maximum_distance: 1.5
+    loop_search_maximum_distance: 3.0
+    do_loop_closing: true
+    loop_match_minimum_chain_size: 10
+    loop_match_maximum_variance_coarse: 3.0
+    loop_match_minimum_response_coarse: 0.35
+    loop_match_minimum_response_fine: 0.45
+
+    # 相关扫描匹配器（correlation scan matcher）
+    correlation_search_space_dimension: 0.5
+    correlation_search_space_resolution: 0.01
+    correlation_search_space_smear_deviation: 0.1
+
+    # 粗扫描匹配器
+    coarse_search_angle_offset: 0.349
+    coarse_angle_resolution: 0.0349
+
+    # 最小评分
+    minimum_score: 0.5
+
+    # 使用扫描浏览（scan barycenter）进行优化
+    use_scan_barycenter: true
+
+    # 地图保存 / 加载
+    map_file_name: ""
+    map_start_pose: [0.0, 0.0, 0.0]
+    map_start_at_dock: true
+
+    # 调试可视化
+    debug_logging: false
+    throttle_scans: 1

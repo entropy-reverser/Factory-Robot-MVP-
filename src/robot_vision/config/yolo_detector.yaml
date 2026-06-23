@@ -1,0 +1,26 @@
+# ------------------------------------------------------------------------------
+# YOLO Detector Parameters
+# ------------------------------------------------------------------------------
+yolo_detector:
+  ros__parameters:
+    # Absolute path to the pre-trained YOLO weights file.
+    # In Docker: mounted from host to /workspace/weights/yolo26n.pt
+    model_path: "/workspace/weights/yolo26n.pt"
+
+    # Minimum confidence score to publish a detection.
+    confidence_threshold: 0.5
+
+    # Compute device: "cpu", "cuda", or "auto" (auto-detect GPU).
+    device: "auto"
+
+    # Publish annotated visualization image on /vision/detection_image.
+    publish_visualization: true
+
+    # Input image topic from the Gazebo depth camera (via ros_gz_bridge).
+    input_topic: "/camera/color/image_raw"
+
+    # Maximum inference rate (Hz). Reduce if CPU/GPU is saturated.
+    inference_rate: 10.0
+
+    # Image queue depth. Use 1 to drop old frames, keep only latest.
+    image_queue_size: 2

@@ -1,0 +1,20 @@
+# ------------------------------------------------------------------------------
+# ros2_control + controller_manager configuration for the 1-DOF gripper.
+# ------------------------------------------------------------------------------
+controller_manager:
+  ros__parameters:
+    update_rate: 50  # Hz
+
+    # Position controller for the left finger joint.
+    # The right finger is a mimic joint and will follow automatically.
+    gripper_position_controller:
+      type: position_controllers/JointGroupPositionController
+
+gripper_position_controller:
+  ros__parameters:
+    joints:
+      - left_finger_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position

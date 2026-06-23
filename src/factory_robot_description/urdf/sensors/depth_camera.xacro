@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ============================================================
+       深度相机 Xacro 宏（RGB + Depth）
+       使用 Gazebo Ignition 的 RGB-D 相机传感器
+       发布 Topic：
+         /camera/color/image_raw       (sensor_msgs/Image)
+         /camera/depth/image_raw       (sensor_msgs/Image)
+         /camera/color/camera_info     (sensor_msgs/CameraInfo)
+       扩展预留：可桥接为 ROS2 topic 供 YOLO 节点订阅
+       ============================================================ -->
+
+  <xacro:macro name="depth_camera_sensor" params="parent xyz rpy">
+
+    <link name="camera_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.04 0.12 0.03"/>
+        </geometry>
+        <material name="green">
+          <color rgba="0.1 0.8 0.2 1.0"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.04 0.12 0.03"/>
+        </geometry>
+      </collision>
+      <inertial>
+        <mass value="0.1"/>
+        <inertia ixx="0.0001" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0001"/>
+      </inertial>
+    </link>
+
+    <joint name="camera_joint" type="fixed">
+      <parent link="${parent}"/>
+      <child link="camera_link"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+    </joint>
+
+    <!-- Gazebo Ignition RGB-D 相机插件 -->
+    <gazebo reference="camera_link">
+      <sensor name="depth_camera" type="rgbd_camera">
+        <camera>
+          <horizontal_fov>1.047</horizontal_fov>  <!-- ~60° -->
+          <image>
+            <width>640</width>
+            <height>480</height>
+          </image>
+          <clip>
+            <near>0.1</near>
+            <far>10.0</far>
+          </clip>
+        </camera>
+        <always_on>1</always_on>
+        <update_rate>30</update_rate>
+        <visualize>true</visualize>
+        <topic>camera</topic>
+        <plugin filename="libignition-gazebo-sensors-system.so" name="ignition::gazebo::systems::Sensors">
+          <render_engine>ogre2</render_engine>
+        </plugin>
+      </sensor>
+    </gazebo>
+
+  </xacro:macro>
+
+</robot>
