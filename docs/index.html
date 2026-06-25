@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Factory Robot MVP — ROS2 工厂移动机器人仿真</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text2: #8b949e;
+      --accent: #58a6ff;
+      --accent2: #3fb950;
+      --orange: #f0883e;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ---- Hero ---- */
+    .hero {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 80px 24px 40px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text2);
+      max-width: 640px;
+      margin: 0 auto 32px;
+    }
+    .hero-links { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 24px; border-radius: 8px;
+      font-size: 0.95rem; font-weight: 600;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn:hover { transform: translateY(-1px); text-decoration: none; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+
+    /* ---- Video ---- */
+    .section { max-width: 960px; margin: 0 auto; padding: 40px 24px; }
+    .section-title {
+      font-size: 1.5rem; font-weight: 700; margin-bottom: 24px;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+    }
+    .video-wrapper {
+      position: relative; width: 100%; padding-top: 56.25%;
+      border-radius: 12px; overflow: hidden;
+      background: var(--card); border: 1px solid var(--border);
+    }
+    .video-wrapper iframe {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%; border: 0;
+    }
+    .video-note {
+      text-align: center; color: var(--text2);
+      font-size: 0.85rem; margin-top: 12px;
+    }
+
+    /* ---- Architecture ---- */
+    .arch-diagram {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 32px; overflow-x: auto;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 0.78rem; line-height: 1.5; color: var(--text2);
+      white-space: pre;
+    }
+
+    /* ---- Features ---- */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .feature-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px;
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: var(--accent); }
+    .feature-card .icon { font-size: 1.8rem; margin-bottom: 12px; }
+    .feature-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .feature-card p { font-size: 0.9rem; color: var(--text2); }
+    .feature-card .tag {
+      display: inline-block; margin-top: 12px;
+      padding: 2px 10px; border-radius: 12px;
+      font-size: 0.75rem; font-weight: 600;
+      background: rgba(88,166,255,0.15); color: var(--accent);
+    }
+
+    /* ---- Tech Stack ---- */
+    .tech-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    .tech-badge {
+      padding: 6px 16px; border-radius: 20px;
+      font-size: 0.85rem; font-weight: 500;
+      background: var(--card); border: 1px solid var(--border);
+    }
+    .tech-badge.core { border-color: var(--accent); color: var(--accent); }
+    .tech-badge.perception { border-color: var(--accent2); color: var(--accent2); }
+    .tech-badge.infra { border-color: var(--orange); color: var(--orange); }
+
+    /* ---- Data Flow ---- */
+    .flow-table {
+      width: 100%; border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .flow-table th, .flow-table td {
+      padding: 10px 14px; text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .flow-table th { color: var(--text2); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+    .flow-table code {
+      background: rgba(88,166,255,0.1); color: var(--accent);
+      padding: 2px 6px; border-radius: 4px; font-size: 0.82rem;
+    }
+
+    /* ---- Screenshots ---- */
+    .screenshots { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+    .screenshot {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; overflow: hidden;
+    }
+    .screenshot img { width: 100%; display: block; }
+    .screenshot .caption {
+      padding: 12px 16px; font-size: 0.85rem; color: var(--text2);
+    }
+
+    /* ---- Footer ---- */
+    footer {
+      text-align: center; padding: 40px 24px;
+      color: var(--text2); font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+      max-width: 960px; margin: 40px auto 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero">
+  <h1>Factory Robot MVP</h1>
+  <p>基于 ROS2 Humble + Gazebo Ignition 的工厂移动机器人仿真全栈项目 —— 从 SLAM 建图、自主导航、YOLO 视觉检测到机械爪控制，Docker 容器化隔离部署</p>
+  <div class="hero-links">
+    <a class="btn btn-primary" href="https://github.com/entropy-reverser/Factory-Robot-MVP-">GitHub 仓库</a>
+    <a class="btn btn-secondary" href="#demo">查看演示</a>
+    <a class="btn btn-secondary" href="#architecture">架构设计</a>
+  </div>
+</section>
+
+<!-- ==================== DEMO VIDEO ==================== -->
+<section class="section" id="demo">
+  <h2 class="section-title">演示视频</h2>
+  <div class="video-wrapper">
+    <!--
+      替换下方 iframe src 为你的视频嵌入链接:
+      Bilibili: https://player.bilibili.com/player.html?bvid=你的BV号
+      YouTube:  https://www.youtube.com/embed/你的视频ID
+    -->
+    <iframe
+      src="https://player.bilibili.com/player.html?bvid=替换为你的BV号"
+      allowfullscreen
+      sandbox="allow-top-navigation allow-same-origin allow-forms allow-scripts"
+    ></iframe>
+  </div>
+  <p class="video-note">视频内容: 一键启动仿真 → SLAM 建图 → 键盘遥控 → 保存地图 → Nav2 自主导航 → YOLO 检测 → 夹爪控制</p>
+</section>
+
+<!-- ==================== ARCHITECTURE ==================== -->
+<section class="section" id="architecture">
+  <h2 class="section-title">系统架构</h2>
+  <div class="arch-diagram">┌─────────────────────────────────────────────────────────────────┐
+│                      HOST (WSL2 / Ubuntu 22.04)                 │
+│                                                                 │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │ Gazebo       │  │ RViz2        │  │ ROS2 Core            │  │
+│  │ Ignition     │  │ 可视化        │  │ slam_toolbox + Nav2  │  │
+│  │ (仿真引擎)    │  │              │  │                      │  │
+│  └──────┬───────┘  └──────┬───────┘  └──────────┬───────────┘  │
+│         │                  │                      │              │
+│         └──────────────────┼──────────────────────┘              │
+│                            │  DDS (ROS_DOMAIN_ID=0)              │
+│  ┌─────────────────────────┼─────────────────────────────────┐  │
+│  │         Docker Containers (network_mode: host)              │  │
+│  │  ┌─────────────────┐    ┌─────────────────────────────┐   │  │
+│  │  │ vision 容器      │    │ gripper 容器 (可选)          │   │  │
+│  │  │ YOLO 目标检测    │    │ ros2_control 机械爪控制      │   │  │
+│  │  │ ultralytics      │    │ position_controllers        │   │  │
+│  │  └─────────────────┘    └─────────────────────────────┘   │  │
+│  └───────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘</div>
+</section>
+
+<!-- ==================== FEATURES ==================== -->
+<section class="section" id="features">
+  <h2 class="section-title">核心功能</h2>
+  <div class="features">
+    <div class="feature-card">
+      <div class="icon">🗺️</div>
+      <h3>SLAM 在线建图</h3>
+      <p>slam_toolbox 异步在线模式，键盘遥控机器人探索厂房，实时构建 2D 栅格地图，支持地图保存与重载</p>
+      <span class="tag">slam_toolbox</span>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🧭</div>
+      <h3>Nav2 自主导航</h3>
+      <p>AMCL 定位 + NavFn 全局规划 + DWB 局部规划 + 行为树恢复策略，在 RViz 中点击目标点即可自主导航避障</p>
+      <span class="tag">Nav2</span>
+    </div>
+    <div class="feature-card">
+      <div class="icon">👁️</div>
+      <h3>YOLO 目标检测</h3>
+      <p>Docker 容器内运行 YOLO 推理节点，订阅相机图像发布 Detection2DArray 标准消息，Timer 解耦采集与推理避免背压</p>
+      <span class="tag">Ultralytics</span>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🤖</div>
+      <h3>1-DOF 平行夹爪</h3>
+      <p>双 prismatic 关节 + mimic 联动，ros2_control 位置控制器驱动，Topic 指令控制开合（0.0~0.04m）</p>
+      <span class="tag">ros2_control</span>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🏭</div>
+      <h3>厂房仿真场景</h3>
+      <p>Gazebo Ignition Fortress 加载 SDF 厂房世界，包含墙壁、货架、货物箱，差速驱动机器人带 LiDAR + RGB-D 相机</p>
+      <span class="tag">Gazebo Ignition</span>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🐳</div>
+      <h3>Docker 容器化部署</h3>
+      <p>Split Architecture: Gazebo 宿主机运行规避 GPU 转发问题，计算节点容器化通过 DDS 主机网络通信</p>
+      <span class="tag">Docker Compose</span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== TECH STACK ==================== -->
+<section class="section" id="tech">
+  <h2 class="section-title">技术栈</h2>
+  <div class="tech-grid">
+    <span class="tech-badge core">ROS2 Humble</span>
+    <span class="tech-badge core">Gazebo Ignition Fortress</span>
+    <span class="tech-badge core">Nav2</span>
+    <span class="tech-badge core">slam_toolbox</span>
+    <span class="tech-badge core">ros2_control</span>
+    <span class="tech-badge core">URDF / Xacro</span>
+    <span class="tech-badge perception">Ultralytics YOLO</span>
+    <span class="tech-badge perception">OpenCV</span>
+    <span class="tech-badge perception">vision_msgs</span>
+    <span class="tech-badge perception">CvBridge</span>
+    <span class="tech-badge infra">Docker Compose</span>
+    <span class="tech-badge infra">WSL2 Ubuntu 22.04</span>
+    <span class="tech-badge infra">ros_gz_bridge</span>
+    <span class="tech-badge infra">colcon build</span>
+  </div>
+</section>
+
+<!-- ==================== DATA FLOW ==================== -->
+<section class="section" id="dataflow">
+  <h2 class="section-title">数据流</h2>
+  <table class="flow-table">
+    <thead>
+      <tr><th>Topic</th><th>类型</th><th>方向</th><th>说明</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>/scan</code></td><td>LaserScan</td><td>Gazebo → ROS2</td><td>2D 激光扫描，SLAM/Nav2 输入</td></tr>
+      <tr><td><code>/camera/color/image_raw</code></td><td>Image</td><td>Gazebo → ROS2</td><td>彩色图像，YOLO 输入</td></tr>
+      <tr><td><code>/camera/depth/image_raw</code></td><td>Image</td><td>Gazebo → ROS2</td><td>深度图像，避障/点云</td></tr>
+      <tr><td><code>/cmd_vel</code></td><td>Twist</td><td>ROS2 → Gazebo</td><td>速度指令 (Nav2/遥控)</td></tr>
+      <tr><td><code>/odom</code></td><td>Odometry</td><td>Gazebo → ROS2</td><td>里程计</td></tr>
+      <tr><td><code>/map</code></td><td>OccupancyGrid</td><td>SLAM → ROS2</td><td>2D 栅格地图</td></tr>
+      <tr><td><code>/vision/detections</code></td><td>Detection2DArray</td><td>YOLO → ROS2</td><td>目标检测结果</td></tr>
+      <tr><td><code>/gripper_controller/commands</code></td><td>Float64MultiArray</td><td>ROS2 → Controller</td><td>夹爪位置指令</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ==================== SCREENSHOTS ==================== -->
+<section class="section" id="screenshots">
+  <h2 class="section-title">运行截图</h2>
+  <div class="screenshots">
+    <!--
+      将截图放入 docs/assets/ 目录，替换下方 src 路径:
+      - gazebo.png  → Gazebo 仿真界面截图
+      - slam.png    → RViz SLAM 建图截图
+      - nav2.png    → Nav2 导航路径截图
+      - yolo.png    → YOLO 检测可视化截图
+    -->
+    <div class="screenshot">
+      <img src="assets/gazebo.png" alt="Gazebo 仿真" onerror="this.parentElement.innerHTML='<div style=\'padding:60px;text-align:center;color:#8b949e\'>Gazebo 仿真界面<br><small>截图待添加: docs/assets/gazebo.png</small></div>'">
+      <div class="caption">Gazebo Ignition 厂房仿真场景 — 机器人在货架间移动</div>
+    </div>
+    <div class="screenshot">
+      <img src="assets/slam.png" alt="SLAM 建图" onerror="this.parentElement.innerHTML='<div style=\'padding:60px;text-align:center;color:#8b949e\'>SLAM 建图<br><small>截图待添加: docs/assets/slam.png</small></div>'">
+      <div class="caption">RViz2 中 slam_toolbox 实时构建的 2D 栅格地图</div>
+    </div>
+    <div class="screenshot">
+      <img src="assets/nav2.png" alt="Nav2 导航" onerror="this.parentElement.innerHTML='<div style=\'padding:60px;text-align:center;color:#8b949e\'>Nav2 导航<br><small>截图待添加: docs/assets/nav2.png</small></div>'">
+      <div class="caption">Nav2 自主导航 — 全局路径规划与局部避障</div>
+    </div>
+    <div class="screenshot">
+      <img src="assets/yolo.png" alt="YOLO 检测" onerror="this.parentElement.innerHTML='<div style=\'padding:60px;text-align:center;color:#8b949e\'>YOLO 检测<br><small>截图待添加: docs/assets/yolo.png</small></div>'">
+      <div class="caption">YOLO 目标检测可视化 — 标注框 + 类别 + 置信度</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer>
+  <p>Factory Robot MVP &mdash; <a href="https://github.com/entropy-reverser/Factory-Robot-MVP-">GitHub</a> &mdash; MIT License</p>
+</footer>
+
+</body>
+</html>
