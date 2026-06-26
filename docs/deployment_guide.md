@@ -134,7 +134,7 @@ This starts:
 
 #### Option B1 — Docker Compose (Recommended)
 
-```bash
+```bash    mirage
 cd ~/factory_robot_mvp/docker
 
 # Build vision service image
